@@ -1,16 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-
-  <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Hello user!"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">.
+    
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_main"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_main"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            app:title="@string/app_name"/>
+        
+    </com.google.android.material.appbar.AppBarLayout>
+    
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/content"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_main"
+        app:layout_constraintBottom_toTopOf="@id/attribution"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar_content"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+            
+            <LinearLayout
+                android:id="@+id/top_bar_content"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                app:layout_scrollFlags="scroll|snap|enterAlways">
+                
+                <EditText
+                    android:id="@+id/search_field"
+                    android:layout_height="?attr/actionBarSize"
+                    android:layout_width="match_parent"
+                    android:drawableStart="@drawable/icon_search_enter"
+                    android:drawablePadding="4dp"
+                    android:drawableTint="?attr/colorControlNormal"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:layout_margin="8dp"
+                    android:hint="@string/hint_search_icon"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:imeOptions="actionSearch|actionGo"/>
+                
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_indicator"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:indeterminate="true"
+                    app:indicatorTrackGapSize="0dp"
+                    app:trackThickness="2dp"/>
+                
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"/>
+                
+            </LinearLayout>
+            
+        </com.google.android.material.appbar.AppBarLayout>
+        
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/icons_recycler_view"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    
+    <TextView
+        android:id="@+id/attribution"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:padding="8dp"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:text="All Rights Reserved ©"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    
 </androidx.constraintlayout.widget.ConstraintLayout>
