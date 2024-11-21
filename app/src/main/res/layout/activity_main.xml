@@ -56,19 +56,19 @@
                     android:ellipsize="end"
                     android:imeOptions="actionSearch|actionGo"/>
                 
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/progress_indicator"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:indeterminate="true"
-                    app:indicatorTrackGapSize="0dp"
-                    app:trackThickness="2dp"/>
-                
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"/>
-                
             </LinearLayout>
+            
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progress_indicator"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:indeterminate="true"
+                app:indicatorTrackGapSize="0dp"
+                app:trackThickness="2dp"/>
+            
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"/>
             
         </com.google.android.material.appbar.AppBarLayout>
         
@@ -86,7 +86,7 @@
         android:layout_width="match_parent"
         android:padding="8dp"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:text="All Rights Reserved ©"
         app:layout_constraintBottom_toBottomOf="parent"
