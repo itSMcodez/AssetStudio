@@ -2,15 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">.
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">.
     
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_main"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:fitsSystemWindows="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:liftOnScroll="false">
         
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_main"
@@ -24,6 +27,7 @@
         android:id="@+id/content"
         android:layout_height="0dp"
         android:layout_width="match_parent"
+        android:fitsSystemWindows="true"
         app:layout_constraintTop_toBottomOf="@id/appbar_main"
         app:layout_constraintBottom_toTopOf="@id/attribution"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +36,8 @@
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar_content"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            app:liftOnScroll="false">
             
             <LinearLayout
                 android:id="@+id/top_bar_content"
