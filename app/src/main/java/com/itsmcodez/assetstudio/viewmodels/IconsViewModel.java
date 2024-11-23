@@ -1,11 +1,7 @@
 package com.itsmcodez.assetstudio.viewmodels;
 
 import androidx.annotation.NonNull;
-import static androidx.lifecycle.SavedStateHandleSupport.createSavedStateHandle;
-import static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY;
-
 import android.app.Application;
-
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.viewmodel.ViewModelInitializer;
@@ -15,6 +11,9 @@ import com.itsmcodez.assetstudio.repositories.IconsRepository;
 import java.util.List;
 import com.itsmcodez.assetstudio.models.IconModel;
 import androidx.lifecycle.MutableLiveData;
+
+import static androidx.lifecycle.SavedStateHandleSupport.createSavedStateHandle;
+import static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY;
 
 public class IconsViewModel extends ViewModel {
     private List<IconModel> icons;

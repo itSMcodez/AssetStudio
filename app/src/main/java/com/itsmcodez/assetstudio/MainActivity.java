@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
                         // get target icon
                         IconModel icon = (IconModel) model;
                         
-                        Toast.makeText(this, icon.getName()+"\n"+icon.getPath(), Toast.LENGTH_LONG).show();
                 });
                 
                 FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(this, FlexDirection.ROW);
