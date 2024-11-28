@@ -59,7 +59,7 @@ dependencies {
     implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     
-    implementation("com.android.tools:sdk-common:31.6.0")
+    implementation("com.android.tools:sdk-common:31.7.2")
     implementation("com.android.tools:common:31.6.0")
     configurations.implementation {
         exclude group: 'com.sun.activation', module: 'javax.activation'
