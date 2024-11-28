@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/export_png_menu_item"
+        android:name="Export to PNG"
+        android:title="Export to PNG"
+        android:tooltipText="Export to PNG" />
+    
+    <item
+        android:id="@+id/export_svg_menu_item"
+        android:name="Export to SVG"
+        android:title="Export to SVG"
+        android:tooltipText="Export to SVG" />
+    
+    <item
+        android:id="@+id/export_vector_menu_item"
+        android:name="Export to Vector"
+        android:title="Export to Vector"
+        android:tooltipText="Export to Vector" />
+
+</menu>

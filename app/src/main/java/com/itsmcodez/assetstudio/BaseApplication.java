@@ -7,6 +7,6 @@ public class BaseApplication extends Application {
     
     @NonNull
     public IconPacks getDefaultIconPack() {
-    	return IconPacks.FEATHER_ICONS;
+    	return IconPacks.LUCIDE_ICONS;
     }
 }

@@ -64,4 +64,6 @@ dependencies {
     configurations.implementation {
         exclude group: 'com.sun.activation', module: 'javax.activation'
     }
+    
+    implementation("com.blankj:utilcodex:1.31.1")
 }
