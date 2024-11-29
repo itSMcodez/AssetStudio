@@ -1,6 +1,7 @@
 package com.itsmcodez.assetstudio.repositories;
 
 import android.app.Application;
+import android.content.res.Configuration;
 import android.graphics.Picture;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,7 +12,10 @@ import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.itsmcodez.assetstudio.markers.IconPacks;
 import com.itsmcodez.assetstudio.models.IconModel;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class IconsRepository {
     private static IconsRepository INSTANCE;
@@ -64,7 +69,7 @@ public class IconsRepository {
                         try {
                             String iconName = svgFile.substring(0, svgFile.indexOf("."));
                             String iconPath = defPackFolder + "/" + svgFile;
-                            Picture iconPreview = SVG.getFromAsset(application.getAssets(), iconPath).renderToPicture();
+                            Picture iconPreview = extractSvg(iconPath, getThemeBasedColor()).renderToPicture();
                             synchronized (icons) {
                                 icons.add(new IconModel(iconName, iconPath, iconPreview));
                             }
@@ -129,5 +134,29 @@ public class IconsRepository {
 
     public void setDefaultIconPack(@NonNull IconPacks iconPack) {
         this.iconPack = iconPack;
+    }
+
+    private SVG extractSvg(String svgPath, String strokeColor) throws IOException, SVGParseException {
+        InputStream inputStream = application.getAssets().open(svgPath);
+        String svgContent = new BufferedReader(new InputStreamReader(inputStream))
+                        .lines()
+                        .collect(Collectors.joining("\n"));
+
+        // Replace color placeholder
+        svgContent = svgContent.replaceAll("currentColor", strokeColor);
+
+        // Load updated SVG
+        SVG svg = SVG.getFromString(svgContent);
+        return svg;
+    }
+
+    private String getThemeBasedColor() {
+        int nightModeFlags = application.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            // Dark mode - Use white tint
+            return "#ffffff";
+        }
+        // Light mode - Use black tint
+        return "#000000";
     }
 }
