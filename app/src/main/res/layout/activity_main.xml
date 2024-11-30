@@ -81,6 +81,13 @@
             android:id="@+id/icons_recycler_view"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="outsideOverlay"
+            app:fastScrollVerticalThumbDrawable="@drawable/scroll_thumb"
+            app:fastScrollVerticalTrackDrawable="@drawable/scroll_track"
+            app:fastScrollHorizontalThumbDrawable="@drawable/scroll_thumb"
+            app:fastScrollHorizontalTrackDrawable="@drawable/scroll_track"
+            app:fastScrollEnabled="true" 
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
         
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
