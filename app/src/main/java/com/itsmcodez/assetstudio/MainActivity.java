@@ -34,6 +34,7 @@ import com.itsmcodez.assetstudio.listeners.PathChooserListener;
 import com.itsmcodez.assetstudio.markers.ExportType;
 import com.itsmcodez.assetstudio.markers.IconPacks;
 import com.itsmcodez.assetstudio.models.IconModel;
+import com.itsmcodez.assetstudio.preferences.ExportPathPreference;
 import com.itsmcodez.assetstudio.utils.PathUtils;
 import com.itsmcodez.assetstudio.utils.FlexboxUtils;
 import com.itsmcodez.assetstudio.utils.IconUtils;
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
     }
     
     private void createExportDialog(ExportType type, IconModel icon) {
+        ExportPathPreference prevDestPath = ExportPathPreference.with(MainActivity.this);
         
         /* Export Icon Editor Layout */
         LayoutExportIconEditorBinding editorView = LayoutExportIconEditorBinding.inflate(getLayoutInflater());
@@ -161,43 +163,60 @@ public class MainActivity extends AppCompatActivity {
         editorView.destPathField.setFocusable(false);
         editorView.destPathField.setKeyListener(null);
         
-        editorView.destPathField.setOnClickListener(view -> {
-                pathChooserListener = new PathChooserListener() {
-                    private Uri destPathUri;
+        // retrieve previously chosen directory
+        if(!(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).equals(""))) {
+            Uri previousDirUri = Uri.parse(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH));
+        	editorView.destPathField.setText(PathUtils.getFullPathFromTreeUri(previousDirUri));
+        }
+        
+        editorView.destPathField.setOnClickListener(view -> startPathChooser());
+        
+        pathChooserListener = new PathChooserListener() {
+            private Uri destPathUri;
+            
+            @Override
+            public boolean onPathChosen(Intent data) {
+                
+                if(data != null) {
+                    Uri pathUri = data.getData();
                     
-                    @Override
-                    public boolean onPathChosen(Intent path) {
-                        Uri pathUri = path.getData();
+                    if (pathUri != null) {
+                        destPathUri = pathUri;
                         
-                        if (pathUri != null) {
-                            destPathUri = pathUri;
-                            
-                            // Persist permissions
-                            getContentResolver().takePersistableUriPermission(
-                                pathUri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                            );
-                            
-                            // display raw path from uri
-                            editorView.destPathField.setText(PathUtils.getFullPathFromTreeUri(pathUri));
-                        }
+                        // Persist permissions
+                        getContentResolver().takePersistableUriPermission(
+                            pathUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        );
                         
-                        return true;
+                        // display raw path from uri
+                        editorView.destPathField.setText(PathUtils.getFullPathFromTreeUri(pathUri));
+                        
+                        // Update path preference 
+                        prevDestPath.setValue(ExportPathPreference.KEY_ICON_EXPORT_PATH, pathUri.toString());
                     }
-                    
-                    @Override
-                    public void onCancelled() {
-                        Toast.makeText(view.getContext(), "No path selected!", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            @Override
+            public void onCancelled() {
+                Toast.makeText(MainActivity.this, "No path selected!", Toast.LENGTH_LONG).show();
+            }
+            
+            @Override
+            public Uri getDestPathUri() {
+                if(destPathUri == null) {
+                    if(!(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).equals(""))) {
+                        destPathUri = Uri.parse(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH));
                     }
-                    
-                    @Override
-                    public Uri getDestPathUri() {
-                        return this.destPathUri;
-                    }
-                    
-                };
-                startPathChooser();
-        });
+                }
+                return this.destPathUri;
+            }
+            
+        };
         
         /* Dialog */
     	MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(this);
@@ -208,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.setIcon(new PictureDrawable(icon.getPreview()));
         dialog.setPositiveButton("Export", (_dialog, which) -> {
                 
-                if(pathChooserListener == null) {
+                if(pathChooserListener == null && prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).equals("")) {
                     Toast.makeText(this, "Please choose a destination folder!", Toast.LENGTH_LONG).show();
                 	return;
                 }
