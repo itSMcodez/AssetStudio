@@ -11,9 +11,12 @@ import com.itsmcodez.assetstudio.models.base.Model;
 import com.itsmcodez.assetstudio.common.Message;
 import com.itsmcodez.assetstudio.markers.ExportType;
 import com.itsmcodez.assetstudio.processors.SVG2PNGProcessor;
+import com.itsmcodez.assetstudio.processors.SVG2VectorProcessor;
 import com.itsmcodez.assetstudio.processors.SVGProcessor;
 import com.itsmcodez.assetstudio.utils.PathUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,7 +69,12 @@ public class IconExporter extends Exporter {
                             outputPath,
                             createCallback(outputPath),
                             Executors.newSingleThreadExecutor());
-            case VECTOR -> saveVectorFile(outputPath);
+            case VECTOR -> new SVG2VectorProcessor()
+                    .processAsync(
+                            icon,
+                            outputPath,
+                            createCallback(outputPath),
+                            Executors.newSingleThreadExecutor());
             default -> showToast("Unsupported export type.");
         }
     }
@@ -79,16 +87,6 @@ public class IconExporter extends Exporter {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        }
-    }
-
-    private void saveVectorFile(Path path) {
-        try {
-            Files.createFile(path);
-            showToast("VECTOR file created: " + path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showToast("Failed to create VECTOR file.");
         }
     }
 

@@ -37,14 +37,6 @@ android {
         
     }
     
-    packaging {
-        resources.excludes.add("META-INF/AL2.0")
-        resources.excludes.add("META-INF/LGPL2.1")
-        resources.excludes.add("META-INF/DEPENDENCIES")
-        resources.excludes.add("META-INF/LICENSE.md")
-        resources.excludes.add("META-INF/NOTICE.md")
-        resources.excludes.add("xsd/catalog.xml")
-    }
 }
 
 
@@ -58,12 +50,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
     implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    
-    implementation("com.android.tools:sdk-common:31.6.0")
-    implementation("com.android.tools:common:31.6.0")
-    configurations.implementation {
-        exclude group: 'com.sun.activation', module: 'javax.activation'
-    }
-    
     implementation("com.blankj:utilcodex:1.31.1")
 }
