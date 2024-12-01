@@ -50,7 +50,7 @@
                     android:id="@+id/search_field"
                     android:layout_height="?attr/actionBarSize"
                     android:layout_width="match_parent"
-                    android:drawableStart="@drawable/search"
+                    android:drawableStart="@drawable/ic_search"
                     android:drawablePadding="4dp"
                     android:background="@android:color/transparent"
                     android:padding="8dp"

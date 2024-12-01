@@ -10,7 +10,9 @@ import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -152,10 +154,28 @@ public class MainActivity extends AppCompatActivity {
     
     private void createExportDialog(ExportType type, IconModel icon) {
         ExportPathPreference prevDestPath = ExportPathPreference.with(MainActivity.this);
+        String iconName = icon.getName(); // used to reset icon name
         
         /* Export Icon Editor Layout */
         LayoutExportIconEditorBinding editorView = LayoutExportIconEditorBinding.inflate(getLayoutInflater());
-        editorView.nameField.setText(icon.getName().replace('-', '_'));
+        editorView.nameField.setText("ic_" + icon.getName().replace('-', '_'));
+        icon.setName(editorView.nameField.getText().toString());
+        editorView.nameField.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void afterTextChanged(Editable t) {
+                    icon.setName(t.toString());
+                }
+                
+                @Override
+                public void onTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                    // TODO: Implement this method
+                }
+                
+                @Override
+                public void beforeTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                    // TODO: Implement this method
+                }
+        });
         editorView.nameFieldHolder.setSuffixText(type == ExportType.PNG ? ".png" : type == ExportType.SVG ? ".svg" : ".xml");
         
         // make destPathField non-editable
@@ -164,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         editorView.destPathField.setKeyListener(null);
         
         // retrieve previously chosen directory
-        if(!(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).equals(""))) {
+        if(!(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).isEmpty())) {
             Uri previousDirUri = Uri.parse(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH));
         	editorView.destPathField.setText(PathUtils.getFullPathFromTreeUri(previousDirUri));
         }
@@ -209,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Uri getDestPathUri() {
                 if(destPathUri == null) {
-                    if(!(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).equals(""))) {
+                    if(!(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).isEmpty())) {
                         destPathUri = Uri.parse(prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH));
                     }
                 }
@@ -227,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.setIcon(new PictureDrawable(icon.getPreview()));
         dialog.setPositiveButton("Export", (_dialog, which) -> {
                 
-                if(pathChooserListener == null && prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).equals("")) {
+                if(pathChooserListener == null && prevDestPath.getValue(ExportPathPreference.KEY_ICON_EXPORT_PATH).isEmpty()) {
                     Toast.makeText(this, "Please choose a destination folder!", Toast.LENGTH_LONG).show();
                 	return;
                 }
@@ -246,6 +266,10 @@ public class MainActivity extends AppCompatActivity {
         });
         dialog.setNegativeButton("Cancel", (_dialog, which) -> {
                 _dialog.dismiss();
+        });
+        dialog.setOnDismissListener((_dialog) -> {
+                // reset icon name
+            icon.setName(iconName);
         });
         dialog.show();
     }

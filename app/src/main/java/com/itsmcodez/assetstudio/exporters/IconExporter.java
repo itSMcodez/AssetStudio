@@ -83,7 +83,7 @@ public class IconExporter extends Exporter {
         try {
             return Paths.get(
                     PathUtils.getFullPathFromTreeUri(destFolder.getUri()),
-                    fileName.replace('-', '_') + extension);
+                    fileName + extension);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
