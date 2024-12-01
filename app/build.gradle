@@ -55,7 +55,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.lifecycle:lifecycle-livedata:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
     implementation("com.caverock:androidsvg-aar:1.4")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     
