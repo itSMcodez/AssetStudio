@@ -1,4 +1,3 @@
-
 package com.itsmcodez.assetstudio;
 
 import android.Manifest;
@@ -30,18 +29,21 @@ import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.itsmcodez.assetstudio.adapters.IconsAdapter;
+import com.itsmcodez.assetstudio.common.IconSearchCallback;
 import com.itsmcodez.assetstudio.databinding.ActivityMainBinding;
 import com.itsmcodez.assetstudio.databinding.LayoutExportIconEditorBinding;
 import com.itsmcodez.assetstudio.listeners.PathChooserListener;
 import com.itsmcodez.assetstudio.markers.ExportType;
 import com.itsmcodez.assetstudio.markers.IconPacks;
 import com.itsmcodez.assetstudio.models.IconModel;
+import com.itsmcodez.assetstudio.models.SearchModel;
 import com.itsmcodez.assetstudio.preferences.ExportPathPreference;
 import com.itsmcodez.assetstudio.utils.PathUtils;
 import com.itsmcodez.assetstudio.utils.FlexboxUtils;
 import com.itsmcodez.assetstudio.utils.IconUtils;
 import com.itsmcodez.assetstudio.viewmodels.IconsViewModel;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -84,10 +86,6 @@ public class MainActivity extends AppCompatActivity {
         
         iconsViewModel.getIconsLiveData().observe(this, icons -> {
                 
-                // set searchField hint and hide progress
-                binding.searchField.setHint(getString(R.string.hint_search_icon, icons.size()));
-                binding.progressIndicator.setVisibility(View.GONE);
-                
                 /* RecyclerView and Adapter */
                 IconsAdapter adapter = new IconsAdapter(this, icons);
                 adapter.setOnItemClickListener((view, model, position) -> {
@@ -105,7 +103,50 @@ public class MainActivity extends AppCompatActivity {
                     (_adapter, diff) -> { _adapter.fillDiff(diff); }
                 );
                 binding.iconsRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
+                binding.iconsRecyclerView.setHasFixedSize(true);
                 binding.iconsRecyclerView.setAdapter(adapter);
+                
+                // set searchField hint and hide progress
+                binding.progressIndicator.setVisibility(View.GONE); 
+                binding.searchField.setHint(getString(R.string.hint_search_icon, icons.size()));
+                binding.searchField.addTextChangedListener(new TextWatcher() {
+                        
+                        @Override
+                        public void afterTextChanged(Editable t) {
+                            CharSequence s = t.toString();
+                            
+                            iconsViewModel.filterIcons(s, new IconSearchCallback() {
+                                    @Override
+                                    public void onSearch(CharSequence constraint, boolean isRunning) {
+                                        if(isRunning) {
+                                        	binding.progressIndicator.setVisibility(View.VISIBLE); 
+                                        }
+                                    }
+                                    
+                                    @SuppressWarnings("unchecked")
+                                    @Override
+                                    public void onPublishResult(SearchModel.SearchResult result) {
+                                        adapter.setIcons((List<IconModel>)result.getValue());
+                                        binding.progressIndicator.postDelayed(() -> {
+                                                binding.progressIndicator.setVisibility(View.GONE);
+                                        }, 3500);
+                                        if(result.getResultCount() == 0) {
+                                        	Toast.makeText(MainActivity.this, "No item found!", Toast.LENGTH_LONG);
+                                        }
+                                    }
+                            });
+                        }
+                        
+                        @Override
+                        public void onTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                            // TODO: Implement this method
+                        }
+                        
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                            // TODO: Implement this method
+                        }
+                });
         });
     }
     

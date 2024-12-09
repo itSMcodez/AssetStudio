@@ -49,6 +49,11 @@ public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
+        
+        if(position == -1 || position > icons.size()-1) {
+        	return;
+        }
+        
         IconModel icon = icons.get(position);
         if(icon == null) {
         	holder.itemView.setVisibility(View.GONE);
@@ -67,11 +72,16 @@ public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.MyViewHolder
 
     @Override
     public int getItemCount() {
-        return this.icons.size();
+        return icons != null ? this.icons.size() : 0;
     }
     
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
     	this.onItemClickListener = onItemClickListener;
+    }
+    
+    public void setIcons(List<IconModel> icons) {
+    	this.icons = icons;
+        notifyDataSetChanged();
     }
 
     public void fillDiff(final int extras) {

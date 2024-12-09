@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.viewmodel.ViewModelInitializer;
 import com.itsmcodez.assetstudio.BaseApplication;
+import com.itsmcodez.assetstudio.common.IconSearchCallback;
 import com.itsmcodez.assetstudio.markers.IconPacks;
 import com.itsmcodez.assetstudio.repositories.IconsRepository;
 import java.util.List;
@@ -48,5 +49,9 @@ public class IconsViewModel extends ViewModel {
     
     public void setDefaultIconPack(@NonNull IconPacks iconPack) {
     	repository.setDefaultIconPack(iconPack);
+    }
+    
+    public void filterIcons(CharSequence constraint, IconSearchCallback callback) {
+        repository.filterIcons(constraint, callback);
     }
 }

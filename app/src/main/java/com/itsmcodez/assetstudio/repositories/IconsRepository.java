@@ -10,8 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
+import com.itsmcodez.assetstudio.common.IconSearchCallback;
 import com.itsmcodez.assetstudio.markers.IconPacks;
 import com.itsmcodez.assetstudio.models.IconModel;
+import com.itsmcodez.assetstudio.models.SearchModel;
+import com.itsmcodez.assetstudio.models.base.Model;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,6 +97,8 @@ public class IconsRepository {
             err.printStackTrace();
             new Handler(Looper.getMainLooper())
             .post(() -> Toast.makeText(application, "An error occurred", Toast.LENGTH_SHORT).show());
+        } finally {
+            EXECUTOR.shutdown();
         }
         
     }
@@ -158,5 +163,22 @@ public class IconsRepository {
         }
         // Light mode - Use black tint
         return "#000000";
+    }
+    
+    public void filterIcons(CharSequence constraint, IconSearchCallback callback) {
+        if(constraint != null) {
+        	new SearchModel(constraint, icons, true) {
+                @Override
+                public void onSearch(CharSequence constraint, boolean isRunning) {
+                    callback.onSearch(constraint, isRunning);
+                }
+                
+                @Override
+                public void onPublishResult(SearchModel.SearchResult result) {
+                    callback.onPublishResult(result);
+                }
+                
+            };
+        }
     }
 }
