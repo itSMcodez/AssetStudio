@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AssetStudio</string>
-
+    <string name="hint_search_for_icons">Search %d icons</string>
 </resources>
