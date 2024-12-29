@@ -1,6 +1,8 @@
 package com.itsmcodez.assetstudio;
 
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private IconsViewModel iconsViewModel;
+    private IconsAdapter iconsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
         // ViewModel and Recyclerview
         iconsViewModel = new ViewModelProvider(this).get(IconsViewModel.class);
         iconsViewModel.getIconsLiveData(new IconsLoadCallback() {
+                @Override
+                public void onLoadStart() {
+                    new Handler(getMainLooper()).post(() -> {
+                            binding.progressIndicator.setVisibility(View.VISIBLE);
+                    });
+                }
+                
                 @Override
                 public void onLoadSuccess(ArrayList<IconModel> icons) {
                     new Handler(getMainLooper()).post(() -> {
@@ -52,10 +62,48 @@ public class MainActivity extends AppCompatActivity {
         .observe(this, icons -> {
                 FlexboxLayoutManager flexboxLayoutManager = new FlexboxLayoutManager(MainActivity.this, FlexDirection.ROW);
                 flexboxLayoutManager.setJustifyContent(JustifyContent.SPACE_EVENLY);
+                iconsAdapter = new IconsAdapter(MainActivity.this, icons);
                 binding.iconsRecyclerView.setLayoutManager(flexboxLayoutManager);
                 binding.iconsRecyclerView.setHasFixedSize(true);
                 binding.iconsRecyclerView.setNestedScrollingEnabled(false);
-                binding.iconsRecyclerView.setAdapter(new IconsAdapter(MainActivity.this, icons));
+                binding.iconsRecyclerView.setAdapter(iconsAdapter);
+        });
+        
+        // Filter icons
+        binding.searchField.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // TODO: Implement this method
+                }
+                
+                @Override
+                public void onTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                    iconsAdapter.filter(s, new IconsLoadCallback() {
+                            @Override
+                            public void onLoadStart() {
+                                new Handler(getMainLooper()).post(() -> {
+                                        binding.progressIndicator.setVisibility(View.VISIBLE);
+                                });
+                            }
+                            
+                            @Override
+                            public void onLoadSuccess(ArrayList<IconModel> icons) {
+                                new Handler(getMainLooper()).post(() -> {
+                                        binding.progressIndicator.setVisibility(View.GONE);
+                                });
+                            }
+                            
+                            @Override
+                            public void onLoadFailed() {
+                                // TODO: Implement this method
+                            }
+                    });
+                }
+                
+                @Override
+                public void beforeTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                    // TODO: Implement this method
+                }
         });
     }
     

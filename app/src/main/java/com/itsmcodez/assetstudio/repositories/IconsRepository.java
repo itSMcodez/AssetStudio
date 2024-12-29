@@ -50,6 +50,9 @@ public class IconsRepository {
         
         executor.execute(() -> {
                 try {
+                    if(callback != null) {
+                    	callback.onLoadStart();
+                    }
                     String[] svgFiles = manager.list(assetPath);
                     for(String svgFile : svgFiles) {
                     	String iconName = svgFile.substring(0, svgFile.indexOf("."));
