@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/export_svg_menu_item"
+        android:name="Export to svg"
+        android:title="Export to svg" />
+    
+    <item
+        android:id="@+id/export_vector_menu_item"
+        android:name="Export to vector"
+        android:title="Export to vector" />
+
+</menu>

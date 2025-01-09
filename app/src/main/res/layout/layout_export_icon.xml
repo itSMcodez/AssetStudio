@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/base"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+    
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center">
+        
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/icon_filename_textfield"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="@string/hint_export_icon_name_textfield"
+            android:layout_margin="8dp">
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:singleLine="true"/>
+            
+        </com.google.android.material.textfield.TextInputLayout>
+        
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/icon_dest_path_textfield"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="@string/hint_export_icon_dest_path_textfield"
+            android:layout_margin="8dp"
+            app:endIconDrawable="@drawable/ic_save_edit"
+            app:endIconMode="custom"
+            app:helperTextEnabled="true"
+            app:helperText="@string/helper_export_icon_dest_path_textfield"
+            style="?attr/textInputFilledStyle">
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:lines="2"
+                android:ellipsize="end"/>
+            
+        </com.google.android.material.textfield.TextInputLayout>
+        
+    </LinearLayout>
+    
+</LinearLayout>

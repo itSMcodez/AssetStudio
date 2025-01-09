@@ -2,4 +2,13 @@
 <resources>
     <string name="app_name">AssetStudio</string>
     <string name="hint_search_for_icons">Search %d icons</string>
+    <string name="hint_export_icon_name_textfield">Enter filename</string>
+    <string name="hint_export_icon_dest_path_textfield">Choose file destination path</string>
+    <string name="dialog_export_icon_dest_path_textfield_error">Please choose a file destination!</string>
+    <string name="dialog_export_icon_filename_textfield_error">Please type a valid name!</string>
+    <string name="dialog_title_export_icon">Export to %s</string>
+    <string name="dialog_msg_export_icon">You are exporting \"%1$s\" as \"%2$s\"</string>
+    <string name="dialog_ok_btn_export_icon">Export</string>
+    <string name="dialog_cancel_btn_export_icon">Cancel</string>
+    <string name="helper_export_icon_dest_path_textfield">* Tap on the rightmost icon to choose file destination</string>
 </resources>

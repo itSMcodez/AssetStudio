@@ -3,6 +3,7 @@ package com.itsmcodez.assetstudio.adapters;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -28,6 +29,7 @@ implements Filterable {
     private ArrayList<IconModel> icons;
     private ArrayList<IconModel> iconsCopy;
     private IconsLoadCallback iconsLoadCallback;
+    private OnItemClickListener onItemClickListener;
 
     public IconsAdapter(Context context, ArrayList<IconModel> icons) {
         this.context = context;
@@ -70,11 +72,26 @@ implements Filterable {
         } catch(IOException err) {
             err.printStackTrace();
         }
+        
+        holder.itemView.setOnClickListener(view -> {
+                if(onItemClickListener != null) {
+                	onItemClickListener.onItemClick(view, icon, position);
+                }
+        });
     }
 
     @Override
     public int getItemCount() {
         return icons.size();
+    }
+    
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    	this.onItemClickListener = onItemClickListener;
+    }
+    
+    @FunctionalInterface
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, IconModel model, int position);
     }
     
     /* Filter icons*/
