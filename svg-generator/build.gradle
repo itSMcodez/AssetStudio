@@ -3,7 +3,7 @@ apply plugin: 'java'
 
 dependencies {
     implementation 'dom4j:dom4j:1.6.1'
-    implementation 'jaxen:jaxen:1.1.6'
+    implementation 'jaxen:jaxen:2.0.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
