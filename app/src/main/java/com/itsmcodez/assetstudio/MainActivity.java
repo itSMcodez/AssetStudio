@@ -4,8 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -35,6 +38,7 @@ import com.itsmcodez.assetstudio.callbacks.SAFLaunchCallback;
 import com.itsmcodez.assetstudio.databinding.ActivityMainBinding;
 import com.itsmcodez.assetstudio.databinding.LayoutExportIconBinding;
 import com.itsmcodez.assetstudio.models.IconModel;
+import com.itsmcodez.assetstudio.preferences.SAFPreference;
 import com.itsmcodez.assetstudio.viewmodels.IconsViewModel;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,7 +55,10 @@ public class MainActivity extends AppCompatActivity {
     private final int exportToSvgOption = R.id.export_svg_menu_item;
     private final int exportToVectorOption = R.id.export_vector_menu_item;
     private final int REQ_CODE_STORAGE_PERMISSION = 1;
+    private SAFPreference SAFPref;
     private ActivityResultLauncher<Uri> SAFLauncher;
+    private ActivityResultLauncher<String> storagePermissionLauncherApi26ToApi29;
+    private ActivityResultLauncher<Intent> storagePermissionLauncherApi30Plus;
     private SAFLaunchCallback SAFLaunchCallback;
 
     @Override
@@ -64,26 +71,68 @@ public class MainActivity extends AppCompatActivity {
         // set content view to binding's root
         setContentView(binding.getRoot());
         
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-        	ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_STORAGE_PERMISSION);
-            return;
+        storagePermissionLauncherApi26ToApi29 = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if(isGranted) {
+                    init();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please allow storage permission for the app to function!", Toast.LENGTH_LONG).show();
+                }
+        });
+        
+        storagePermissionLauncherApi30Plus = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
+                    init();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please allow storage permission for the app to function!", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    storagePermissionLauncherApi30Plus.launch(intent);
+                }
+        });
+        
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            
+        	if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                init();
+            } else if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(getApplicationContext(), "Please allow storage permission for the app to function!", Toast.LENGTH_LONG).show();
+                storagePermissionLauncherApi26ToApi29.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            } else {
+                storagePermissionLauncherApi26ToApi29.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                storagePermissionLauncherApi30Plus.launch(intent);
+            }
         }
-
+        
+        
         // Register for SAF
         SAFLauncher = registerForActivityResult(
             new ActivityResultContracts.OpenDocumentTree(),
             new ActivityResultCallback<Uri>() {
                 @Override
                 public void onActivityResult(Uri uri) {
-                    // Check for the freshest data.
-                    final int takeFlags = getIntent().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    getContentResolver().takePersistableUriPermission(uri, takeFlags);
-                    
-                    if(SAFLaunchCallback != null) {
-                    	SAFLaunchCallback.onLaunchResult(uri);
-                    }
+                    if(uri != null) {
+                        // Check for the freshest data.
+                        final int takeFlags = getIntent().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                        
+                        if(SAFLaunchCallback != null) {
+                            SAFLaunchCallback.onLaunchResult(uri);
+                        }
+                    } else Toast.makeText(MainActivity.this, "Path selection canceled!", Toast.LENGTH_SHORT).show();
                 }
         });
+    }
+    
+    private void init() {
+        
+        // init Preferences
+        SAFPref = SAFPreference.with(this);
 
         // ViewModel and Recyclerview
         iconsViewModel = new ViewModelProvider(this).get(IconsViewModel.class);
@@ -120,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                 });
                 binding.iconsRecyclerView.setLayoutManager(flexboxLayoutManager);
                 binding.iconsRecyclerView.setHasFixedSize(true);
-                binding.iconsRecyclerView.setNestedScrollingEnabled(false);
                 binding.iconsRecyclerView.setAdapter(iconsAdapter);
         });
         
@@ -169,14 +217,6 @@ public class MainActivity extends AppCompatActivity {
         this.binding = null;
     }
     
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == REQ_CODE_STORAGE_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-        	recreate();
-        }
-    }
-    
     private void launchExportOptions(View view, IconModel icon) {
     	PopupMenu menu = new PopupMenu(this, view);
         menu.inflate(R.menu.menu_icon_export_options);
@@ -206,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
                 launchSAF();
         });
         
+        // Disable tinting option if export type is svg
+        if(option == exportToSvgOption) exportIconBinding.checkboxTint.setVisibility(View.GONE);
+        
         SAFLaunchCallback = new SAFLaunchCallback() {
             private DocumentFile documentFile;
             
@@ -213,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLaunchResult(Uri uri) {
                 exportIconBinding.iconDestPathTextfield.getEditText().setText(getPathFromUri(uri));
                 documentFile = DocumentFile.fromTreeUri(MainActivity.this, uri);
+                if(SAFPref != null) SAFPref.putPreference(SAFPreference.KEY, uri.toString());
             }
             
             @Override
@@ -220,6 +264,13 @@ public class MainActivity extends AppCompatActivity {
                 return this.documentFile;
             }
         };
+        
+        // Retrieve previously chosen file destination if exists
+        if(SAFPref != null) {
+            if(!((String)SAFPref.getPreference(SAFPreference.KEY)).isEmpty()) {
+            	SAFLaunchCallback.onLaunchResult(Uri.parse((String)SAFPref.getPreference(SAFPreference.KEY)));
+            }
+        }
         
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setView(exportIconBinding.getRoot());
@@ -268,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     // Vector
                     if(option == exportToVectorOption) {
-                        exportToVector(exportIconBinding.iconFilenameTextfield.getEditText().getText().toString(), SAFLaunchCallback.getDocumentFile(), icon);
+                        exportToVector(exportIconBinding.iconFilenameTextfield.getEditText().getText().toString(), SAFLaunchCallback.getDocumentFile(), icon, exportIconBinding.checkboxTint.isChecked());
                     }
                 }
                 
@@ -309,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     
-    private void exportToVector(String filename, DocumentFile documentFile, IconModel icon) {
+    private void exportToVector(String filename, DocumentFile documentFile, IconModel icon, boolean applyTint) {
     	if(documentFile == null) {
     		return;
     	}
@@ -321,8 +372,9 @@ public class MainActivity extends AppCompatActivity {
             String data = ConvertUtils.inputStream2String(fis, "utf-8");
             String svgData = data.replaceAll("currentColor", "#000000");
             
-            Files.write(destinationPath, svgData.getBytes(), StandardOpenOption.CREATE);
-            Svg2Vector.parseSvgToXml(destinationPath.toFile(), destinationPath.toFile(), -1, -1);
+            Files.deleteIfExists(destinationPath);
+            Files.write(destinationPath, svgData.getBytes(), StandardOpenOption.CREATE_NEW);
+            Svg2Vector.parseSvgToXml(destinationPath.toFile(), destinationPath.toFile(), -1, -1, applyTint);
             
             if(Files.exists(destinationPath)) {
                 Toast.makeText(this, "file saved: "+destinationPath.toString(), Toast.LENGTH_LONG).show();

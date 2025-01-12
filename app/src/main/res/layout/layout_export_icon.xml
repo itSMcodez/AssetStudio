@@ -49,4 +49,14 @@
         
     </LinearLayout>
     
+    <CheckBox
+        android:id="@+id/checkbox_tint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:layout_margin="2dp"
+        android:text="@string/msg_tint"
+        android:textSize="12sp"
+        android:checked="true" />
+    
 </LinearLayout>

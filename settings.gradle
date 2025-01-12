@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AssetStudio"
 
-include(":app")
+include(":app", ":svg-generator")

@@ -11,4 +11,5 @@
     <string name="dialog_ok_btn_export_icon">Export</string>
     <string name="dialog_cancel_btn_export_icon">Cancel</string>
     <string name="helper_export_icon_dest_path_textfield">* Tap on the rightmost icon to choose file destination</string>
+    <string name="msg_tint">Apply tint (?attr/colorControlNormal)</string>
 </resources>
