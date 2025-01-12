@@ -1,9 +1,50 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
+<resources>
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/default_theme_primary</item>
+        <item name="colorOnPrimary">@color/default_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/default_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/default_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/default_theme_secondary</item>
+        <item name="colorOnSecondary">@color/default_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/default_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/default_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/default_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/default_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/default_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/default_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/default_theme_error</item>
+        <item name="colorOnError">@color/default_theme_onError</item>
+        <item name="colorErrorContainer">@color/default_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/default_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/default_theme_background</item>
+        <item name="colorOnBackground">@color/default_theme_onBackground</item>
+        <item name="colorSurface">@color/default_theme_surface</item>
+        <item name="colorOnSurface">@color/default_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/default_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/default_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/default_theme_outline</item>
+        <item name="colorOutlineVariant">@color/default_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/default_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/default_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/default_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/default_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/default_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/default_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/default_theme_onPrimaryFixedVariant</item>
+        <item name="colorSecondaryFixed">@color/default_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/default_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/default_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/default_theme_onSecondaryFixedVariant</item>
+        <item name="colorTertiaryFixed">@color/default_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/default_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/default_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/default_theme_onTertiaryFixedVariant</item>
+        <item name="colorSurfaceDim">@color/default_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/default_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/default_theme_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/default_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/default_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/default_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/default_theme_surfaceContainerHighest</item>
     </style>
-
-    <style name="AppTheme" parent="Base.AppTheme" />
 </resources>

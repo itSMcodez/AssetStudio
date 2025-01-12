@@ -13,7 +13,7 @@ public class SvgGlideModule extends AppGlideModule {
     
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry) {
-        registry.prepend(SVG.class, Drawable.class, new SvgModelLoaderFactory());
+        registry.prepend(SVG.class, Drawable.class, new SvgModelLoaderFactory(context));
     }
     
     @Override

@@ -1,5 +1,6 @@
 package com.itsmcodez.assetstudio.imageloader.loaders;
 
+import android.content.Context;
 import static com.bumptech.glide.request.target.Target.SIZE_ORIGINAL;
 
 import android.graphics.drawable.Drawable;
@@ -12,7 +13,12 @@ import com.caverock.androidsvg.SVG;
 import com.itsmcodez.assetstudio.imageloader.fetcher.SvgDataFetcher;
 
 public class SvgModelLoader implements ModelLoader<SVG, Drawable> {
+    private Context context;
 
+    public SvgModelLoader(Context context) {
+    	this.context = context;
+    }
+    
     @Override
     public LoadData<Drawable> buildLoadData(SVG model, int width, int height, Options options) {
         if(model != null) {
@@ -22,7 +28,7 @@ public class SvgModelLoader implements ModelLoader<SVG, Drawable> {
             if (height != SIZE_ORIGINAL) {
                 model.setDocumentHeight(height);
             }
-            return new LoadData<>(new ObjectKey(model.hashCode()), new SvgDataFetcher(model));
+            return new LoadData<>(new ObjectKey(model.hashCode()), new SvgDataFetcher(context, model));
         }
         throw new IllegalArgumentException("SVG cannot be null!");
     }
