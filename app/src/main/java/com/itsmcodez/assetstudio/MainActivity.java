@@ -1,6 +1,7 @@
 package com.itsmcodez.assetstudio;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         });
         
         storagePermissionLauncherApi30Plus = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
+                if (result.getResultCode() == Activity.RESULT_OK) {
                     init();
                 } else {
                     Toast.makeText(getApplicationContext(), "Please allow storage permission for the app to function!", Toast.LENGTH_LONG).show();
@@ -102,7 +103,9 @@ public class MainActivity extends AppCompatActivity {
             }
             
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
+            if (Environment.isExternalStorageManager()) {
+                init();
+            } else {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                 intent.setData(Uri.parse("package:" + getPackageName()));
                 storagePermissionLauncherApi30Plus.launch(intent);
