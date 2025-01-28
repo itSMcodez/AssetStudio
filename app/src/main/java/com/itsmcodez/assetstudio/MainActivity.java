@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         });
         
         storagePermissionLauncherApi30Plus = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
+                if (Environment.isExternalStorageManager()) {
                     init();
                 } else {
                     Toast.makeText(getApplicationContext(), "Please allow storage permission for the app to function!", Toast.LENGTH_LONG).show();
