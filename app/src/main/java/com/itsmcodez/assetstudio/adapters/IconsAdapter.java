@@ -30,11 +30,13 @@ implements Filterable {
     private ArrayList<IconModel> iconsCopy;
     private IconsLoadCallback iconsLoadCallback;
     private OnItemClickListener onItemClickListener;
+    private OnItemLongClickListener onItemLongClickListener;
 
     public IconsAdapter(Context context, ArrayList<IconModel> icons) {
         this.context = context;
         this.icons = icons;
         iconsCopy = new ArrayList<>(icons);
+        mSelection = new MultiSelection(new ArrayList<IconModel>());
     }
 
     public static class IconsViewHolder extends RecyclerView.ViewHolder {
@@ -73,11 +75,21 @@ implements Filterable {
             err.printStackTrace();
         }
         
+        holder.itemView.setChecked(icon.getSelected() && inSelectMode);
+        
         holder.itemView.setOnClickListener(view -> {
                 if(onItemClickListener != null) {
                 	onItemClickListener.onItemClick(view, icon, position);
                 }
         });
+        
+        holder.itemView.setOnLongClickListener(view -> {
+                if(onItemLongClickListener != null) {
+                	onItemLongClickListener.onItemLongClick(view, icon, position);
+                }
+                return true;
+        });
+        
     }
 
     @Override
@@ -89,9 +101,123 @@ implements Filterable {
     	this.onItemClickListener = onItemClickListener;
     }
     
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+    	this.onItemLongClickListener = onItemLongClickListener;
+    }
+    
     @FunctionalInterface
     public interface OnItemClickListener {
         void onItemClick(View itemView, IconModel model, int position);
+    }
+    
+    @FunctionalInterface
+    public interface OnItemLongClickListener {
+        boolean onItemLongClick(View itemView, IconModel model, int position);
+    }
+    
+    /* Multiple selections */
+    private MultiSelection mSelection;
+    private boolean inSelectMode;
+    
+    public static class MultiSelection {
+        private ArrayList<IconModel> selectionList;
+        private boolean inSelectMode;
+        
+        public interface Selectable {
+            void setSelected(boolean selected);
+            boolean getSelected();
+        }
+        
+        public MultiSelection(ArrayList<IconModel> selectionList) {
+        	this.selectionList = selectionList;
+        }
+        
+        public void setInSelectMode(boolean inSelectMode) {
+        	this.inSelectMode = inSelectMode;
+        }
+        
+        public boolean getInSelectMode() {
+        	return this.inSelectMode;
+        }
+        
+        public void add(IconModel icon) {
+        	if(inSelectMode) {
+        		if(icon != null && !icon.getSelected() && !selectionList.contains(icon)) {
+        			icon.setSelected(true);
+                    selectionList.add(icon);
+        		}
+        	}
+        }
+        
+        public void remove(IconModel icon) {
+        	if(inSelectMode) {
+        		if(icon != null && selectionList.contains(icon)) {
+                    if(icon.getSelected()) {
+                    	icon.setSelected(false);
+                    }
+        			selectionList.remove(icon);
+        		}
+        	}
+        }
+        
+        public boolean isSelected(IconModel icon) {
+        	return icon.getSelected() && selectionList.contains(icon);
+        }
+        
+        public ArrayList<IconModel> getSelectionList() {
+        	return this.selectionList;
+        }
+        
+        public void clearSelection() {
+            if(inSelectMode) {
+                for(IconModel icon : selectionList) {
+                	if(icon != null) {
+                        if(icon.getSelected()) {
+                            icon.setSelected(false);
+                        }
+                    }
+                }
+                selectionList.clear();
+        	}
+        }
+    }
+    
+    public void setInSelectMode(boolean inSelectMode) {
+        this.inSelectMode = inSelectMode;
+        if(mSelection != null) {
+        	mSelection.setInSelectMode(inSelectMode);
+        }
+    }
+    
+    public boolean getInSelectMode() {
+        return this.inSelectMode && (mSelection != null && mSelection.getInSelectMode());
+    }
+    
+    public void addToSelection(int position) {
+    	if(inSelectMode && mSelection != null) {
+    		mSelection.add(icons.get(position));
+            notifyItemChanged(position);
+    	}
+    }
+    
+    public void removeIfSelected(int position) {
+    	if(inSelectMode && mSelection != null) {
+    		mSelection.remove(icons.get(position));
+            notifyItemChanged(position);
+    	}
+    }
+    
+    public boolean isSelected(int position) {
+    	return mSelection != null && mSelection.isSelected(icons.get(position));
+    }
+    
+    public ArrayList<IconModel> getSelectionList() {
+    	return mSelection.getSelectionList();
+    }
+    
+    public void clearSelection() {
+    	mSelection.clearSelection();
+        notifyDataSetChanged();
     }
     
     /* Filter icons*/

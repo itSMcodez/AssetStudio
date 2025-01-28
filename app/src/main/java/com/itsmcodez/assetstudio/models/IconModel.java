@@ -1,10 +1,12 @@
 package com.itsmcodez.assetstudio.models;
 
 import android.graphics.drawable.Drawable;
+import com.itsmcodez.assetstudio.adapters.IconsAdapter;
 
-public class IconModel {
+public class IconModel implements IconsAdapter.MultiSelection.Selectable {
     private String name, assetPath;
     private Drawable preview;
+    private boolean selected;
 
     public IconModel(String name, String assetPath, Drawable preview) {
         this.name = name;
@@ -39,5 +41,15 @@ public class IconModel {
     @Override
     public String toString() {
         return "IconModel[name=" + name + ", assetPath=" + assetPath + "]";
+    }
+
+    @Override
+    public boolean getSelected() {
+        return this.selected;
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }
