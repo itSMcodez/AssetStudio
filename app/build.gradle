@@ -11,8 +11,8 @@ android {
         applicationId "com.itsmcodez.assetstudio"
         minSdk 26
         targetSdk 34
-        versionCode 25122024
-        versionName "1.0.0-alpha"
+        versionCode 28012025
+        versionName "1.1.0-alpha"
         
         vectorDrawables { 
             useSupportLibrary true

@@ -166,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
                     if(newState == BottomSheetBehavior.STATE_COLLAPSED) {
                         binding.selectionRecyclerView.setAdapter(null);
                     	binding.selectionRecyclerView.setLayoutManager(null);
-                        selectionList.clear();
                     }
                 }
                 
@@ -188,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 if(iconsAdapter != null && iconsAdapter.getInSelectMode()) {
                 	iconsAdapter.clearSelection();
                     iconsAdapter.setInSelectMode(false);
+                    selectionList.clear();
                     binding.selectionListSheet.setVisibility(View.GONE);
                     Toast.makeText(MainActivity.this, "Selection reset!", Toast.LENGTH_SHORT).show();
                 }
