@@ -1,7 +1,6 @@
 package com.itsmcodez.assetstudio.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,13 +63,15 @@ implements Filterable {
         IconModel icon = icons.get(position);
         holder.name.setText(icon.getName());
         holder.preview.setLayerType(ImageView.LAYER_TYPE_SOFTWARE, null);
+        
         try {
-        	Glide.with(context)
+            Glide.with(context)
             .load(SVG.getFromAsset(context.getAssets(), icon.getAssetPath()))
             .placeholder(context.getDrawable(R.drawable.ic_loading))
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .into(holder.preview);
         } catch(SVGParseException err) {
-        	err.printStackTrace();
+            err.printStackTrace();
         } catch(IOException err) {
             err.printStackTrace();
         }

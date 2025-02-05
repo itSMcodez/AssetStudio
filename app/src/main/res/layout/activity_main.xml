@@ -53,10 +53,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appbar">
         
-        <androidx.recyclerview.widget.RecyclerView
+        <com.l4digital.fastscroll.FastScrollRecyclerView
             android:id="@+id/icons_recycler_view"
             android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_width="match_parent"
+            app:handleColor="#999999"
+            app:showTrack="true"
+            app:trackColor="@android:color/transparent"/>
         
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/selection_list_sheet"
