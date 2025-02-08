@@ -17,7 +17,8 @@
             android:id="@+id/toolbar"
             android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent"
-            app:title="@string/app_name"/>
+            app:title="@string/app_name"
+            app:menu="@menu/menu_settings"/>
         
         <EditText
             android:id="@+id/search_field"

@@ -4,16 +4,17 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
+import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.MutableLiveData;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.itsmcodez.assetstudio.R;
 import com.itsmcodez.assetstudio.callbacks.IconsLoadCallback;
+import com.itsmcodez.assetstudio.common.IconPack;
 import com.itsmcodez.assetstudio.models.IconModel;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class IconsRepository {
     
     private IconsRepository(Application application) {
         this.application = application;
-    	getIconsFromAsset();
+        icons = new ArrayList<>();
+        iconsLiveData = new MutableLiveData<>();
     }
     
     public static synchronized IconsRepository getInstance(Application application) {
@@ -43,17 +45,24 @@ public class IconsRepository {
     	return this.icons;
     }
     
-    public MutableLiveData<ArrayList<IconModel>> getIconsLiveData(IconsLoadCallback callback) {
+    public MutableLiveData<ArrayList<IconModel>> getIconsLiveData(@NonNull IconPack pack, IconsLoadCallback callback) {
         this.callback = callback;
+        getIconsFromAsset(pack);
     	return this.iconsLiveData;
     }
     
-    private void getIconsFromAsset() {
+    public void refreshIcons(IconPack pack) {
+    	getIconsFromAsset(pack);
+    }
+    
+    private void getIconsFromAsset(IconPack pack) {
+        if(icons.size() > 0) {
+        	icons.clear();
+            iconsLiveData.setValue(icons);
+        }
         ExecutorService executor = Executors.newSingleThreadExecutor();
-    	icons = new ArrayList<>();
-        iconsLiveData = new MutableLiveData<>();
         AssetManager manager = application.getAssets();
-        String assetPath = "icons/feather/";
+        String assetPath = getPackAssetFolder(pack);
         
         executor.execute(() -> {
                 try {
@@ -64,8 +73,9 @@ public class IconsRepository {
                     for(String svgFile : svgFiles) {
                     	String iconName = svgFile.substring(0, svgFile.indexOf("."));
                         String iconPath = assetPath + svgFile;
-                        Drawable iconPreview = getBitmapDrawable(application, new PictureDrawable(SVG.getFromAsset(manager, iconPath).renderToPicture()));
-                        icons.add(new IconModel(iconName, iconPath, iconPreview));
+                        SVG svg = SVG.getFromAsset(manager, iconPath);
+                        Drawable iconPreview = getBitmapDrawable(application, new PictureDrawable(svg.renderToPicture()));
+                        icons.add(new IconModel(iconName, iconPath, svg, iconPreview));
                     }
                     iconsLiveData.postValue(icons);
                     if(callback != null) {
@@ -83,6 +93,16 @@ public class IconsRepository {
                     }
                 }
         });
+    }
+    
+    private String getPackAssetFolder(IconPack pack) {
+        switch(pack) {
+            case FEATHER : return "icons/feather/";
+            case LUCIDE : return "icons/lucide/";
+            case TABLER : return "icons/tabler/";
+            default:
+                return null;
+        }
     }
     
     /* We convert the PictureDrawable to Bitmap to be able to apply tint to the imageview  

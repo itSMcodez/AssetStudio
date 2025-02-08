@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="About" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+    
+    <LinearLayout
+        android:id="@+id/content"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_below="@id/appbar"
+        android:layout_alignParentBottom="true">
+        
+        <ImageView
+            android:layout_height="96dp"
+            android:layout_width="96dp"
+            android:layout_margin="24dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_launcher"/>
+        
+        <TextView
+            android:id="@+id/version"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="AssetStudio • © All rights reserved"/>
+        
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/social"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_margin="16dp"
+            android:onClick="openGitProject">
+            
+            <RelativeLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:padding="8dp">
+                
+                <ImageView
+                    android:id="@+id/img"
+                    android:layout_height="24dp"
+                    android:layout_width="24dp"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/ic_github"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"/>
+                
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    android:layout_toEndOf="@id/img"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true">
+                    
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:text="Contribute to this project"/>
+                    
+                    <TextView
+                        android:id="@+id/desc"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="https://github.com/itSMcodez/AssetStudio"/>
+                    
+                </LinearLayout>
+                
+            </RelativeLayout>
+            
+        </com.google.android.material.card.MaterialCardView>
+        
+    </LinearLayout>
+    
+</RelativeLayout>

@@ -1,16 +1,19 @@
 package com.itsmcodez.assetstudio.models;
 
 import android.graphics.drawable.Drawable;
+import com.caverock.androidsvg.SVG;
 import com.itsmcodez.assetstudio.adapters.IconsAdapter;
 
 public class IconModel implements IconsAdapter.MultiSelection.Selectable {
     private String name, assetPath;
+    private SVG svg;
     private Drawable preview;
     private boolean selected;
 
-    public IconModel(String name, String assetPath, Drawable preview) {
+    public IconModel(String name, String assetPath, SVG svg, Drawable preview) {
         this.name = name;
         this.assetPath = assetPath;
+        this.svg = svg;
         this.preview = preview;
     }
 
@@ -51,5 +54,13 @@ public class IconModel implements IconsAdapter.MultiSelection.Selectable {
     @Override
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public SVG getSvg() {
+        return this.svg;
+    }
+
+    public void setSvg(SVG svg) {
+        this.svg = svg;
     }
 }

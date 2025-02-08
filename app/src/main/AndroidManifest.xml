@@ -21,7 +21,8 @@
         
         <activity 
             android:name="MainActivity" 
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -31,6 +32,18 @@
         <activity 
             android:name="DebugActivity" 
             android:exported="true">
+        </activity>
+        
+        <activity 
+            android:name="SettingsActivity" 
+            android:parentActivityName="MainActivity"
+            android:exported="false">
+        </activity>
+        
+        <activity 
+            android:name="AboutActivity" 
+            android:parentActivityName="SettingsActivity"
+            android:exported="false">
         </activity>
         
     </application>

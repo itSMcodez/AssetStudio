@@ -3,6 +3,7 @@ package com.itsmcodez.assetstudio;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -29,6 +30,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.github.megatronking.svg.generator.svg.Svg2Vector;
@@ -41,10 +43,13 @@ import com.itsmcodez.assetstudio.adapters.IconsAdapter;
 import com.itsmcodez.assetstudio.adapters.ListItemAdapter;
 import com.itsmcodez.assetstudio.callbacks.IconsLoadCallback;
 import com.itsmcodez.assetstudio.callbacks.SAFLaunchCallback;
+import com.itsmcodez.assetstudio.common.IconPack;
 import com.itsmcodez.assetstudio.databinding.ActivityMainBinding;
 import com.itsmcodez.assetstudio.databinding.LayoutExportIconBinding;
 import com.itsmcodez.assetstudio.models.IconModel;
 import com.itsmcodez.assetstudio.preferences.SAFPreference;
+import com.itsmcodez.assetstudio.preferences.fragment.SettingsFragment;
+import com.itsmcodez.assetstudio.util.PathUtil;
 import com.itsmcodez.assetstudio.viewmodels.IconsViewModel;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private final int exportToVectorOption = R.id.export_vector_menu_item;
     private final int REQ_CODE_STORAGE_PERMISSION = 1;
     private SAFPreference SAFPref;
+    private SharedPreferences APP_PREFERENCES;
     private ActivityResultLauncher<Uri> SAFLauncher;
     private ActivityResultLauncher<String> storagePermissionLauncherApi26ToApi29;
     private ActivityResultLauncher<Intent> storagePermissionLauncherApi30Plus;
@@ -141,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         
         // init Preferences
         SAFPref = SAFPreference.with(this);
+        APP_PREFERENCES = PreferenceManager.getDefaultSharedPreferences(this);
         
         // init multi-selection
         ArrayList<String> selectionList = new ArrayList<>();
@@ -200,11 +207,12 @@ public class MainActivity extends AppCompatActivity {
 
         // ViewModel and Recyclerview
         iconsViewModel = new ViewModelProvider(this).get(IconsViewModel.class);
-        iconsViewModel.getIconsLiveData(new IconsLoadCallback() {
+        iconsViewModel.getIconsLiveData(getDefaultPack(), new IconsLoadCallback() {
                 @Override
                 public void onLoadStart() {
                     new Handler(getMainLooper()).post(() -> {
                             binding.progressIndicator.setVisibility(View.VISIBLE);
+                            binding.searchField.setHint("Loading...");
                     });
                 }
                 
@@ -299,6 +307,15 @@ public class MainActivity extends AppCompatActivity {
                 binding.iconsRecyclerView.setAdapter(iconsAdapter);
         });
         
+        /* Settings */
+        binding.toolbar.setOnMenuItemClickListener(menuItem -> {
+                if(menuItem.getItemId() == R.id.settings_menu_item) {
+                    startActivity(new Intent(this, SettingsActivity.class));
+                	return true;
+                }
+                return false;
+        });
+        
         // Filter icons
         binding.searchField.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -338,10 +355,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     
+    public static final String ACTION_UPDATE_ICONS  = "ACTION_UPDATE_ICONS";
+    private static Intent updateIntent = new Intent();
+    
+    public static Intent getUpdateIntent() {
+    	return updateIntent;
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(getUpdateIntent() != null && getUpdateIntent().getAction() != null) {
+        	if(getUpdateIntent().getAction().equals(ACTION_UPDATE_ICONS)) {
+                if(iconsViewModel != null) {
+                    binding.searchField.setHint("Updating icons...");
+                	iconsViewModel.refreshIcons(getDefaultPack());
+                }
+                getUpdateIntent().setAction(null);
+            }
+        }
+    }
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
         this.binding = null;
+    }
+    
+    private IconPack getDefaultPack() {
+        if(APP_PREFERENCES != null) {
+        	String pack = APP_PREFERENCES.getString(SettingsFragment.KEY_ICON_PACK, SettingsFragment.ICON_PACK_FEATHER);
+            return pack.equals(SettingsFragment.ICON_PACK_FEATHER) ? IconPack.FEATHER : pack.equals(SettingsFragment.ICON_PACK_LUCIDE) ? IconPack.LUCIDE : IconPack.TABLER;
+        }
+        return null;
     }
     
     private void launchExportOptions(View view, IconModel icon) {
@@ -396,7 +442,7 @@ public class MainActivity extends AppCompatActivity {
             
             @Override
             public void onLaunchResult(Uri uri) {
-                exportIconBinding.iconDestPathTextfield.getEditText().setText(getPathFromUri(uri));
+                exportIconBinding.iconDestPathTextfield.getEditText().setText(PathUtil.getPathFromUri(uri));
                 documentFile = DocumentFile.fromTreeUri(MainActivity.this, uri);
                 if(SAFPref != null) SAFPref.putPreference(SAFPreference.KEY, uri.toString());
             }
@@ -490,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
             
             @Override
             public void onLaunchResult(Uri uri) {
-                exportIconBinding.iconDestPathTextfield.getEditText().setText(getPathFromUri(uri));
+                exportIconBinding.iconDestPathTextfield.getEditText().setText(PathUtil.getPathFromUri(uri));
                 documentFile = DocumentFile.fromTreeUri(MainActivity.this, uri);
                 if(SAFPref != null) SAFPref.putPreference(SAFPreference.KEY, uri.toString());
             }
@@ -565,26 +611,13 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
         });
     }
-
-    private String getPathFromUri(Uri uri) {
-        String docId = DocumentsContract.getTreeDocumentId(uri);
-        String[] split = docId.split(":");
-        String type = split[0];
-        String path = split.length > 1 ? split[1] : "";
-
-        if ("primary".equalsIgnoreCase(type)) {
-            return "/storage/emulated/0/" + path;
-        }
-        // Handle non-primary volumes
-        return "storage/" + type + "/" + path;
-    }
     
     private void exportToSvg(String filename, DocumentFile documentFile, IconModel icon) {
     	if(documentFile == null) {
     		return;
     	}
         try {
-        	String destination = getPathFromUri(documentFile.getUri());
+        	String destination = PathUtil.getPathFromUri(documentFile.getUri());
             Path destinationPath = Paths.get(destination+"/"+filename.replace('-', '_')+".svg");
             Files.copy(getAssets().open(icon.getAssetPath()), destinationPath, StandardCopyOption.REPLACE_EXISTING);
             if(Files.exists(destinationPath)) {
@@ -600,7 +633,7 @@ public class MainActivity extends AppCompatActivity {
     	if(documentFile == null) {
     		return;
     	}
-        String destination = getPathFromUri(documentFile.getUri());
+        String destination = PathUtil.getPathFromUri(documentFile.getUri());
         Path destinationPath = Paths.get(destination+"/"+filename.replace('-', '_')+".xml");
         try {
             var fis = getAssets().open(icon.getAssetPath());

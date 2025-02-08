@@ -11,14 +11,12 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParseException;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.material.card.MaterialCardView;
 import com.itsmcodez.assetstudio.R;
 import com.itsmcodez.assetstudio.callbacks.IconsLoadCallback;
 import com.itsmcodez.assetstudio.databinding.LayoutIconItemBinding;
 import com.itsmcodez.assetstudio.models.IconModel;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.IconsViewHolder> 
@@ -64,18 +62,14 @@ implements Filterable {
         holder.name.setText(icon.getName());
         holder.preview.setLayerType(ImageView.LAYER_TYPE_SOFTWARE, null);
         
-        try {
-            Glide.with(context)
-            .load(SVG.getFromAsset(context.getAssets(), icon.getAssetPath()))
+        Glide.with(context)
+            .load(icon.getSvg())
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .signature(new ObjectKey(icon.getSvg().hashCode()))
             .placeholder(context.getDrawable(R.drawable.ic_loading))
-            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .into(holder.preview);
-        } catch(SVGParseException err) {
-            err.printStackTrace();
-        } catch(IOException err) {
-            err.printStackTrace();
-        }
         
+        // check selection at this position
         holder.itemView.setChecked(icon.getSelected() && inSelectMode);
         
         holder.itemView.setOnClickListener(view -> {
