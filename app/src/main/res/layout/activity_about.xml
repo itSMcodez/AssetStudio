@@ -46,7 +46,7 @@
             android:text="AssetStudio • © All rights reserved"/>
         
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/social"
+            android:id="@+id/social_github"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:clickable="true"
@@ -60,7 +60,7 @@
                 android:padding="8dp">
                 
                 <ImageView
-                    android:id="@+id/img"
+                    android:id="@+id/github_img"
                     android:layout_height="24dp"
                     android:layout_width="24dp"
                     android:layout_margin="8dp"
@@ -73,12 +73,12 @@
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center_vertical"
-                    android:layout_toEndOf="@id/img"
+                    android:layout_toEndOf="@id/github_img"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true">
                     
                     <TextView
-                        android:id="@+id/title"
+                        android:id="@+id/github_title"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:textStyle="bold"
@@ -86,10 +86,61 @@
                         android:text="Contribute to this project"/>
                     
                     <TextView
-                        android:id="@+id/desc"
+                        android:id="@+id/github_desc"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:text="https://github.com/itSMcodez/AssetStudio"/>
+                    
+                </LinearLayout>
+                
+            </RelativeLayout>
+            
+        </com.google.android.material.card.MaterialCardView>
+        
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/social_telegram"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_margin="16dp"
+            android:onClick="openTelegramGroup">
+            
+            <RelativeLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:padding="8dp">
+                
+                <ImageView
+                    android:id="@+id/tele_img"
+                    android:layout_height="24dp"
+                    android:layout_width="24dp"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/ic_telegram"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"/>
+                
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    android:layout_toEndOf="@id/tele_img"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true">
+                    
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:text="Join telegram group"/>
+                    
+                    <TextView
+                        android:id="@+id/tele_desc"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="https://t.me/asset_studio_apk"/>
                     
                 </LinearLayout>
                 

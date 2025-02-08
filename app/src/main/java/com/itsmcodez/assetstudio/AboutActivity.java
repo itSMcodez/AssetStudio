@@ -23,7 +23,14 @@ public class AboutActivity extends AppCompatActivity {
     public void openGitProject(View v) {
     	startActivity(
             new Intent(Intent.ACTION_VIEW)
-            .setData(Uri.parse(binding.desc.getText().toString()))
+            .setData(Uri.parse(binding.githubDesc.getText().toString()))
+        );
+    }
+    
+    public void openTelegramGroup(View v) {
+    	startActivity(
+            new Intent(Intent.ACTION_VIEW)
+            .setData(Uri.parse(binding.teleDesc.getText().toString()))
         );
     }
 }
