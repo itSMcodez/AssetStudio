@@ -26,7 +26,8 @@ public class SvgDataFetcher implements DataFetcher<Drawable> {
     public void loadData(Priority priority, DataCallback<? super Drawable> callback) {
         Picture svgPicture = model.renderToPicture();
         PictureDrawable svgDrawable = new PictureDrawable(svgPicture);
-        callback.onDataReady(getBitmapDrawable(context, svgDrawable));
+        Drawable drawable = getBitmapDrawable(context, svgDrawable);
+        callback.onDataReady(drawable);
     }
 
     @Override

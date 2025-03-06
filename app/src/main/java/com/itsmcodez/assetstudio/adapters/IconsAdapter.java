@@ -1,6 +1,7 @@
 package com.itsmcodez.assetstudio.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.ObjectKey;
+import com.caverock.androidsvg.SVG;
 import com.google.android.material.card.MaterialCardView;
 import com.itsmcodez.assetstudio.R;
 import com.itsmcodez.assetstudio.callbacks.IconsLoadCallback;
@@ -63,6 +66,8 @@ implements Filterable {
         holder.preview.setLayerType(ImageView.LAYER_TYPE_SOFTWARE, null);
         
         Glide.with(context)
+            .as(Drawable.class)
+            .priority(Priority.IMMEDIATE)
             .load(icon.getSvg())
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .signature(new ObjectKey(icon.getSvg().hashCode()))
@@ -108,6 +113,15 @@ implements Filterable {
     @FunctionalInterface
     public interface OnItemLongClickListener {
         boolean onItemLongClick(View itemView, IconModel model, int position);
+    }
+    
+    public int indexOf(String icon_name) {
+        for(IconModel icon : icons) {
+        	if(icon.getName().equals(icon_name)) {
+                return icons.indexOf(icon);
+        	}
+        }
+    	return -1;
     }
     
     /* Multiple selections */

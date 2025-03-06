@@ -2,9 +2,11 @@ package com.itsmcodez.assetstudio;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +19,8 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,12 +37,20 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
 import com.github.megatronking.svg.generator.svg.Svg2Vector;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.itsmcodez.assetstudio.adapters.IconsAdapter;
 import com.itsmcodez.assetstudio.adapters.ListItemAdapter;
 import com.itsmcodez.assetstudio.callbacks.IconsLoadCallback;
@@ -47,11 +59,17 @@ import com.itsmcodez.assetstudio.common.IconPack;
 import com.itsmcodez.assetstudio.databinding.ActivityMainBinding;
 import com.itsmcodez.assetstudio.databinding.LayoutExportIconBinding;
 import com.itsmcodez.assetstudio.models.IconModel;
+import com.itsmcodez.assetstudio.options.IconOptions;
 import com.itsmcodez.assetstudio.preferences.SAFPreference;
 import com.itsmcodez.assetstudio.preferences.fragment.SettingsFragment;
 import com.itsmcodez.assetstudio.util.PathUtil;
+import com.itsmcodez.assetstudio.viewmodels.IconOptionsViewModel;
 import com.itsmcodez.assetstudio.viewmodels.IconsViewModel;
+import com.skydoves.colorpickerview.ColorEnvelope;
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> storagePermissionLauncherApi26ToApi29;
     private ActivityResultLauncher<Intent> storagePermissionLauncherApi30Plus;
     private SAFLaunchCallback SAFLaunchCallback;
+    private boolean applyIconOptions = false;
+    private IconOptionsViewModel iconOptionsVM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
         SAFPref = SAFPreference.with(this);
         APP_PREFERENCES = PreferenceManager.getDefaultSharedPreferences(this);
         
+        // init icon options viewmodel
+        iconOptionsVM = new ViewModelProvider(this).get(IconOptions.class);
+        
         // init multi-selection
         ArrayList<String> selectionList = new ArrayList<>();
         binding.selectionListSheet.setVisibility(View.GONE);
@@ -165,6 +188,11 @@ public class MainActivity extends AppCompatActivity {
                                 selectionList.add(icon.getName());
                             }
                             ListItemAdapter adapter = new ListItemAdapter(MainActivity.this, selectionList);
+                            adapter.setOnItemClickListener((view, name, position) -> {
+                                    if(binding.iconsRecyclerView.getAdapter() != null) {
+                                    	binding.iconsRecyclerView.scrollToPosition(iconsAdapter.indexOf(name));
+                                    }
+                            });
                             binding.selectionRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                             binding.selectionRecyclerView.setAdapter(adapter);
                             binding.nSelectionText.setText(String.valueOf(selectionList.size()) + " selected");
@@ -437,6 +465,9 @@ public class MainActivity extends AppCompatActivity {
         // Disable tinting option if export type is svg
         if(option == exportToSvgOption) exportIconBinding.checkboxTint.setVisibility(View.GONE);
         
+        // Disable editting options for batch export
+        exportIconBinding.checkboxAdvancedOptions.setVisibility(View.GONE);
+        
         SAFLaunchCallback = new SAFLaunchCallback() {
             private DocumentFile documentFile;
             
@@ -527,9 +558,29 @@ public class MainActivity extends AppCompatActivity {
         exportIconBinding.iconDestPathTextfield.setEndIconOnClickListener(view -> {
                 launchSAF();
         });
+        ((MaterialAutoCompleteTextView)exportIconBinding.optionStrokeWidth.getEditText()).setSimpleItems(new String[] {"1", "2", "3", "4", "5"});
+        ((MaterialAutoCompleteTextView)exportIconBinding.optionStrokeLinecap.getEditText()).setSimpleItems(new String[] {"round", "butt", "square"});
+        ((MaterialAutoCompleteTextView)exportIconBinding.optionStrokeLinejoin.getEditText()).setSimpleItems(new String[] {"round", "arcs", "bevel", "miter", "miter-clip"});
+        
         
         // Disable tinting option if export type is svg
         if(option == exportToSvgOption) exportIconBinding.checkboxTint.setVisibility(View.GONE);
+        
+        // Icon export options (Editing Options)
+        exportIconBinding.checkboxAdvancedOptions.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton checkbox, boolean isChecked) {
+                    applyIconOptions = isChecked;
+                    if(isChecked) {
+                    	exportIconBinding.advancedOptions.setVisibility(View.VISIBLE);
+                        exportIconBinding.checkboxTint.setChecked(false);
+                    } else {
+                        exportIconBinding.advancedOptions.setVisibility(View.GONE);
+                        icon.setOptions(null);
+                        loadIconPreview(exportIconBinding.preview, icon);
+                    }
+                }
+        });
         
         SAFLaunchCallback = new SAFLaunchCallback() {
             private DocumentFile documentFile;
@@ -554,17 +605,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setView(exportIconBinding.getRoot());
-        builder.setIcon(icon.getPreview());
-        builder.setTitle(getString(R.string.dialog_title_export_icon, exportType));
-        builder.setMessage(getString(R.string.dialog_msg_export_icon, iconNameConvention, exportType));
-        builder.setCancelable(false);
-        builder.setPositiveButton(R.string.dialog_ok_btn_export_icon, null);
-        builder.setNegativeButton(R.string.dialog_cancel_btn_export_icon, null);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+        BottomSheetDialog d = new BottomSheetDialog(this);
+        d.setCancelable(true);
+        loadIconPreview(exportIconBinding.preview, icon);
+        exportIconBinding.title.setText(getString(R.string.dialog_title_export_icon, exportType));
+        exportIconBinding.msg.setText(getString(R.string.dialog_msg_export_icon, iconNameConvention, exportType));
+        exportIconBinding.positiveBt.setText(R.string.dialog_ok_btn_export_icon);
+        exportIconBinding.positiveBt.setOnClickListener(view -> {
                 boolean isDestPathTextFieldErrorEnabled = false;
                 boolean isFilenameTextFieldErrorEnabled = false;
                 
@@ -595,6 +642,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 
                 if(SAFLaunchCallback != null) {
+                    // Apply options if available
+                    if(exportIconBinding.checkboxAdvancedOptions.isChecked()) icon.setOptions(getIconOptions());
+                    
                 	// SVG
                     if(option == exportToSvgOption) {
                         exportToSvg(exportIconBinding.iconFilenameTextfield.getEditText().getText().toString(), SAFLaunchCallback.getDocumentFile(), icon);
@@ -605,11 +655,158 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 
-                dialog.dismiss();
+                d.dismiss();
         });
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> {
-                dialog.dismiss();
+        exportIconBinding.negativeBt.setText(R.string.dialog_cancel_btn_export_icon);
+        exportIconBinding.negativeBt.setOnClickListener(view -> {
+                d.dismiss();
         });
+        d.setContentView(exportIconBinding.getRoot());
+        d.show();
+        configureIconOptions(exportIconBinding, icon);
+    }
+    
+    private void loadIconPreview(ImageView view, IconModel icon) {
+    	try {
+            SVG svg = SVG.getFromAsset(getAssets(), icon.getAssetPath());
+            Glide.with(MainActivity.this)
+            .as(Drawable.class)
+            .priority(Priority.IMMEDIATE)
+            .load(svg)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .placeholder(MainActivity.this.getDrawable(R.drawable.ic_loading))
+            .into(view);
+        } catch(SVGParseException e) {
+            e.printStackTrace();
+        } catch(IOException e) {
+            e.printStackTrace();
+        } 
+    }
+    
+    private void configureIconOptions(LayoutExportIconBinding editor, IconModel icon) {
+        try {
+            InputStream iconInputStream = getAssets().open(icon.getAssetPath());
+        	IconOptions options = (IconOptions)iconOptionsVM;
+            options.setIconInputStream(iconInputStream);
+            options.getXml_contentLiveData().observe(MainActivity.this, xml -> {
+                    try {
+                        SVG svg = SVG.getFromString(xml);
+                        Glide.with(MainActivity.this)
+                        .as(Drawable.class)
+                        .priority(Priority.IMMEDIATE)
+                        .load(svg)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .placeholder(MainActivity.this.getDrawable(R.drawable.ic_loading))
+                        .into(editor.preview);
+                    } catch(SVGParseException e) {
+                        e.printStackTrace();
+                    }
+            });
+            
+            editor.optionStrokeColor.setOnClickListener(view -> {
+                    ColorEnvelopeListener listener = new ColorEnvelopeListener() {
+                        @Override
+                        public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                            if(fromUser) {
+                                refreshIconOptions(options, editor, "#"+envelope.getHexCode().substring(2), null);
+                                view.setBackgroundColor(Color.parseColor("#"+envelope.getHexCode().substring(2)));
+                                Toast.makeText(getApplicationContext(), envelope.getHexCode(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    };
+                    launchColorPickerDialog(listener);
+            });
+            
+            editor.optionFillColor.setOnClickListener(view -> {
+                    ColorEnvelopeListener listener = new ColorEnvelopeListener() {
+                        @Override
+                        public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                            if(fromUser) {
+                                refreshIconOptions(options, editor, null, "#"+envelope.getHexCode().substring(2));
+                                view.setBackgroundColor(Color.parseColor("#"+envelope.getHexCode().substring(2)));
+                                Toast.makeText(getApplicationContext(), envelope.getHexCode(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    };
+                    launchColorPickerDialog(listener);
+            });
+            
+            TextWatcher inputCallback = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                    // TODO: Implement this method
+                }
+                
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // TODO: Implement this method
+                }
+                
+                @Override
+                public void onTextChanged(CharSequence s, int arg1, int arg2, int arg3) {
+                    refreshIconOptions(options, editor, null, null);
+                }
+            };
+            editor.optionStrokeLinejoin.getEditText().addTextChangedListener(inputCallback);
+            editor.optionStrokeLinecap.getEditText().addTextChangedListener(inputCallback);
+            editor.optionStrokeWidth.getEditText().addTextChangedListener(inputCallback);
+            editor.optionWidth.getEditText().addTextChangedListener(inputCallback);
+            editor.optionHeight.getEditText().addTextChangedListener(inputCallback);
+            
+        } catch(IOException err) {
+        	err.printStackTrace();
+        }
+    }
+    
+    private void refreshIconOptions(IconOptions options, LayoutExportIconBinding editor, String stroke, String fill) {
+    	// stroke and fill color
+        if(fill != null) {
+            options.setFillColor(fill); 
+        }
+        if(stroke != null) {
+            options.setStrokeColor(stroke);
+        }
+        
+        // dimensions 
+        if(!TextUtils.isEmpty(editor.optionWidth.getEditText().getText().toString())) {
+        	options.setWidth(editor.optionWidth.getEditText().getText().toString());
+        }
+        if(!TextUtils.isEmpty(editor.optionHeight.getEditText().getText().toString())) {
+        	options.setHeight(editor.optionHeight.getEditText().getText().toString());
+        }
+        
+        // stroke width
+        String str_width = editor.optionStrokeWidth.getEditText().getText().toString();
+        int width = TextUtils.isEmpty(str_width) ? 1 : Integer.parseInt(str_width);
+        options.setStrokeWidth(width);
+        
+        // stroke line
+        String strokeLineCap = editor.optionStrokeLinecap.getEditText().getText().toString();
+        options.setStrokeLineCap(strokeLineCap.equals("square") ? IconOptions.StrokeLineCap.SQUARE : strokeLineCap.equals("butt") ? IconOptions.StrokeLineCap.BUTT : IconOptions.StrokeLineCap.ROUND);
+        String strokeLineJoin = editor.optionStrokeLinejoin.getEditText().getText().toString();
+        options.setStrokeLineJoin(strokeLineJoin.equals("bevel") ? IconOptions.StrokeLineJoin.BEVEL : strokeLineJoin.equals("arcs") ? IconOptions.StrokeLineJoin.ARCS : strokeLineJoin.equals("miter") ? IconOptions.StrokeLineJoin.MITER : strokeLineJoin.equals("miter-clip") ? IconOptions.StrokeLineJoin.MITER_CLIP : IconOptions.StrokeLineJoin.ROUND); 
+    }
+    
+    private IconOptions getIconOptions() {
+    	return (IconOptions)iconOptionsVM;
+    }
+    
+    private void launchColorPickerDialog(ColorEnvelopeListener listener) {
+    	new ColorPickerDialog.Builder(this)
+		.setTitle("ColorPicker Dialog")
+		.setPreferenceName("MyColorPickerDialog")
+		.setPositiveButton(getString(R.string.confirm), listener)
+		.setNegativeButton(getString(R.string.cancel),
+		    new DialogInterface.OnClickListener() {
+		        @Override
+		        public void onClick(DialogInterface dialogInterface, int i) {
+		            dialogInterface.dismiss();
+		        }
+		    })
+		.attachAlphaSlideBar(false) // the default value is true.
+		.attachBrightnessSlideBar(true)  // the default value is true.
+		.setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+		.show();
     }
     
     private void exportToSvg(String filename, DocumentFile documentFile, IconModel icon) {
@@ -617,15 +814,19 @@ public class MainActivity extends AppCompatActivity {
     		return;
     	}
         try {
+            var fis = (applyIconOptions && icon.getOptions() != null) ? (InputStream) icon.getOptions().getModifiedVersion() : getAssets().open(icon.getAssetPath());
+            
         	String destination = PathUtil.getPathFromUri(documentFile.getUri());
             Path destinationPath = Paths.get(destination+"/"+filename.replace('-', '_')+".svg");
-            Files.copy(getAssets().open(icon.getAssetPath()), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fis, destinationPath, StandardCopyOption.REPLACE_EXISTING);
             if(Files.exists(destinationPath)) {
                 Toast.makeText(this, "file saved: "+destinationPath.toString(), Toast.LENGTH_SHORT).show();
+                icon.setOptions(null); // reset options
             }
         } catch(IOException err) {
         	err.printStackTrace();
             Toast.makeText(this, "An error occurred while saving the file!", Toast.LENGTH_SHORT).show();
+            icon.setOptions(null); // reset options
         }
     }
     
@@ -636,7 +837,7 @@ public class MainActivity extends AppCompatActivity {
         String destination = PathUtil.getPathFromUri(documentFile.getUri());
         Path destinationPath = Paths.get(destination+"/"+filename.replace('-', '_')+".xml");
         try {
-            var fis = getAssets().open(icon.getAssetPath());
+            var fis = (applyIconOptions && icon.getOptions() != null) ? (InputStream) icon.getOptions().getModifiedVersion() : getAssets().open(icon.getAssetPath());
             
             String data = ConvertUtils.inputStream2String(fis, "utf-8");
             String svgData = data.replaceAll("currentColor", "#000000");
@@ -647,10 +848,12 @@ public class MainActivity extends AppCompatActivity {
             
             if(Files.exists(destinationPath)) {
                 Toast.makeText(this, "file saved: "+destinationPath.toString(), Toast.LENGTH_SHORT).show();
+                icon.setOptions(null); // reset options
             }
         } catch(IOException err) {
         	err.printStackTrace();
             Toast.makeText(this, "An error occurred while saving the file!", Toast.LENGTH_SHORT).show();
+            icon.setOptions(null); // reset options
         }
     }
     

@@ -3,12 +3,14 @@ package com.itsmcodez.assetstudio.models;
 import android.graphics.drawable.Drawable;
 import com.caverock.androidsvg.SVG;
 import com.itsmcodez.assetstudio.adapters.IconsAdapter;
+import com.itsmcodez.assetstudio.options.IconOptions;
 
 public class IconModel implements IconsAdapter.MultiSelection.Selectable {
     private String name, assetPath;
     private SVG svg;
     private Drawable preview;
     private boolean selected;
+    private IconOptions options;
 
     public IconModel(String name, String assetPath, SVG svg, Drawable preview) {
         this.name = name;
@@ -62,5 +64,13 @@ public class IconModel implements IconsAdapter.MultiSelection.Selectable {
 
     public void setSvg(SVG svg) {
         this.svg = svg;
+    }
+
+    public IconOptions getOptions() {
+        return this.options;
+    }
+
+    public void setOptions(IconOptions options) {
+        this.options = options;
     }
 }

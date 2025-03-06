@@ -60,7 +60,7 @@ public class IconsRepository {
         	icons.clear();
             iconsLiveData.setValue(icons);
         }
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        ExecutorService executor = Executors.newFixedThreadPool(4);
         AssetManager manager = application.getAssets();
         String assetPath = getPackAssetFolder(pack);
         

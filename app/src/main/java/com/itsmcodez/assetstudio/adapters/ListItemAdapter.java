@@ -2,6 +2,7 @@ package com.itsmcodez.assetstudio.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
     private LayoutListItemBinding binding;
     private Context context;
     private ArrayList<String> data;
+    private OnItemClickListener onItemClickListener;
 
     public ListItemAdapter(Context context, ArrayList<String> data) {
         this.context = context;
@@ -43,12 +45,23 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
         String data = this.data.get(position);
         holder.name.setText(data);
         holder.itemView.setOnClickListener(view -> {
-                Toast.makeText(context, data, Toast.LENGTH_SHORT).show();
+                if(onItemClickListener != null) {
+                	onItemClickListener.onItemClick(view, data, position);
+                }
         });
     }
 
     @Override
     public int getItemCount() {
         return data.size();
+    }
+    
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    	this.onItemClickListener = onItemClickListener;
+    }
+    
+    @FunctionalInterface
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, String model, int position);
     }
 }

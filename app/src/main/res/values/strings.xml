@@ -11,5 +11,13 @@
     <string name="dialog_ok_btn_export_icon">Export</string>
     <string name="dialog_cancel_btn_export_icon">Cancel</string>
     <string name="helper_export_icon_dest_path_textfield">* Tap on the rightmost icon to choose file destination</string>
-    <string name="msg_tint">Apply tint (?attr/colorControlNormal)</string>
+    <string name="msg_tint">Apply tint (?attr/colorControlNormal): do not use if Advanced options is enabled</string>
+    <string name="msg_advanced_options">Advanced options</string>
+    <string name="label_option_stroke_width">Stroke Width</string>
+    <string name="label_option_stroke_linecap">Stroke Linecap</string>
+    <string name="label_option_stroke_linejoin">Stroke Line Joint</string>
+    <string name="label_option_stroke_color">Stroke Color</string>
+    <string name="label_option_fill_color">Fill Color</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 </resources>
