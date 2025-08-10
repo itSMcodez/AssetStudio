@@ -2,7 +2,7 @@ apply plugin: 'java'
 //apply plugin: 'maven'
 
 dependencies {
-    implementation 'dom4j:dom4j:1.6.1'
+    implementation 'dom4j:dom4j:20040902.021138'
     implementation 'jaxen:jaxen:1.1.6'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
